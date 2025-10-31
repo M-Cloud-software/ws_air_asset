@@ -1,0 +1,4 @@
+Invoking command in '/home/mustardking/ws_sensor_combined/build/px4_msgs': /usr/bin/cmake --build /home/mustardking/ws_sensor_combined/build/px4_msgs -- -j4 -l4
+Invoked command in '/home/mustardking/ws_sensor_combined/build/px4_msgs' returned '0': /usr/bin/cmake --build /home/mustardking/ws_sensor_combined/build/px4_msgs -- -j4 -l4
+Invoking command in '/home/mustardking/ws_sensor_combined/build/px4_msgs': /usr/bin/cmake --install /home/mustardking/ws_sensor_combined/build/px4_msgs
+Invoked command in '/home/mustardking/ws_sensor_combined/build/px4_msgs' returned '0': /usr/bin/cmake --install /home/mustardking/ws_sensor_combined/build/px4_msgs
