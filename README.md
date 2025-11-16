@@ -73,9 +73,13 @@ src/
 	`source /opt/ros/humble/setup.bash`
 
 4. Run the following command. 
+	
 	For Python:
+	
 	`ros2 pkg create <package_name> --build-type ament_python --dependencies rclpy`
+	
 	For C++:
+	
 	`ros2 pkg create <package_name> --build-type ament_cmake --dependencies rclcpp std_msgs`
 
 5. Ensure it integrates cleanly with the `launch_project` script if applicable
