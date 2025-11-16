@@ -67,11 +67,18 @@ src/
 
 1. Create a new folder under `src/`
 
-2. Follow the existing naming convention
+2. Open a new terminal
 
-3. Add your build and dependency files (CMakeLists.txt, package.xml, etc.)
+3. Source the terminal (Connect to ROS2)
+	`source /opt/ros/humble/setup.bash`
 
-4. Ensure it integrates cleanly with the `launch_project` script if applicable
+4. Run the following command. 
+	For Python:
+	`ros2 pkg create <package_name> --build-type ament_python --dependencies rclpy`
+	For C++:
+	`ros2 pkg create <package_name> --build-type ament_cmake --dependencies rclcpp std_msgs`
+
+5. Ensure it integrates cleanly with the `launch_project` script if applicable
 
 # Collaboration Guidelines
 
