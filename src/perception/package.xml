@@ -7,7 +7,11 @@
   <maintainer email="hektorb@umich.edu">mustardking</maintainer>
   <license>TODO: License declaration</license>
 
+  <!-- Add a dependency for every 'import' you end up using in your scripts -->
   <depend>rclpy</depend>
+  <depend>geometry_msgs</depend> 
+  <depend>turtlesim</depend> 
+
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

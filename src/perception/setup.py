@@ -24,7 +24,8 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'test_node = perception.first_node:main'
+            'test_node = perception.first_node:main',
+            'draw_circle = perception.draw_circle:main',
         ],
     },
 )
