@@ -155,21 +155,14 @@ ros2 run rqt_image_view rqt_image_view /detection_image
 | Component | Status |
 |---|---|
 | `tarp_detection_node` | Working — builds and runs |
-| `sitl_publisher` | Builds — SITL test currently blocked by `px4_msgs` build issue |
+| `sitl_publisher` | Working — builds and runs |
 | PX4 SITL + MicroXRCEAgent | Working via `launch_project.sh` |
 | Camera node | Not yet built |
 | Comms / modem node | Not yet built |
 
 ### Known Issues
 
-**`px4_msgs` not found at runtime** — the SITL test harness fails with `ModuleNotFoundError: No module named 'px4_msgs'` even after sourcing the workspace. Root cause is that `px4_msgs` has not been successfully built yet. Fix:
-```bash
-cd ~/ws_air_asset
-source /opt/ros/humble/setup.bash
-colcon build --packages-select px4_msgs
-source install/setup.bash
-python3 -c "from px4_msgs.msg import VehicleGlobalPosition; print('ok')"
-```
+Currently none.
 
 ---
 
