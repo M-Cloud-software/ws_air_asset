@@ -141,11 +141,17 @@ source source.sh
 # Run detection pipeline against real hardware
 ros2 launch tarp_detection detection.launch.py
 
-# Run SITL test harness (no drone required)
+# Run SITL test harness with randomly generated input (no drone required)
 ros2 launch tarp_detection sitl.launch.py
+
+# Run SITL test harness with supplied image (no drone required)
+ros2 launch tarp_detection sitl.launch.py image_path:=/absolute/path/to/test_simple.png
 
 # View annotated output
 ros2 run rqt_image_view rqt_image_view /detection_image
+
+# View GPS coordinates of the object in the image
+ros2 topic echo /objects_of_interest
 ```
 
 ---
