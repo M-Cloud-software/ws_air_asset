@@ -10,10 +10,11 @@ tarp_detection:
     # Red:    [0, 0, 255]
     # Blue:   [255, 0, 0]
     # Orange: [0, 140, 255]
-    target_color_bgr: [0, 0, 200]
+    target_color_bgr: [151, 82, 2] # This is the color blue from thte sample image I am using for SITL testing. This would be changed
+                                   # when we receive our actual tarp so we can test for reals with it
 
     # ── Colour matching ───────────────────────────────────────────────────────
-    color_tolerance: 35     # HSV distance — raise if missing detections,
+    color_tolerance: 50     # HSV distance — raise if missing detections,
                             # lower if too many false positives
     min_pixels: 500         # ignore blobs smaller than this
     max_pixels: 200000      # ignore blobs larger than this
