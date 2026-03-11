@@ -8,4 +8,11 @@ WORKSPACE=~/ws_air_asset
 
 cd "$WORKSPACE"
 source /opt/ros/humble/setup.bash
-source install/local_setup.bash
+# source install/local_setup.bash
+
+# Only source the workspace if it's been built
+if [ -f "install/local_setup.bash" ]; then
+    source install/local_setup.bash
+else
+    echo "Workspace not yet built. Run 'colcon build' first."
+fi

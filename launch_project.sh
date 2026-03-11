@@ -49,7 +49,7 @@ if [[ "$1" == "build" ]]; then
     exit 0
 fi
 
-echo "🚀 Starting system..."
+echo "Starting system..."
 
 # -------- 1. Environment --------
 cd "$WORKSPACE"

@@ -1,28 +1,23 @@
 tarp_detection:
   ros__parameters:
 
-    # ── Topics ────────────────────────────────────────────────────────────
+    # ── Topics ────────────────────────────────────────────────────────────────
     image_topic:       "/camera_feed"
     global_pos_topic:  "/fmu/out/vehicle_global_position"
     local_pos_topic:   "/fmu/out/vehicle_local_position"
 
-    # ── Target colour (BGR order) ─────────────────────────────────────────
-    # Red tarp: [0, 0, 255]   Blue tarp: [255, 0, 0]   Orange: [0, 140, 255]
+    # ── Target colour (BGR order) ─────────────────────────────────────────────
+    # Red:    [0, 0, 255]
+    # Blue:   [255, 0, 0]
+    # Orange: [0, 140, 255]
     target_color_bgr: [0, 0, 200]
 
-    # ── Colour matching ───────────────────────────────────────────────────
-    use_hsv:          true    # HSV is more robust under changing light
-    color_tolerance:  35      # Euclidean distance in HSV/BGR space
-    min_pixels:       500     # Minimum blob area (filter out tiny noise)
-    max_pixels:       200000  # Maximum blob area (filter out whole-frame hits)
+    # ── Colour matching ───────────────────────────────────────────────────────
+    color_tolerance: 35     # HSV distance — raise if missing detections,
+                            # lower if too many false positives
+    min_pixels: 500         # ignore blobs smaller than this
+    max_pixels: 200000      # ignore blobs larger than this
 
-    # ── Gradient (Sobel) stage ────────────────────────────────────────────
-    gradient_threshold: 40    # Sobel magnitude cutoff 0-255
-    gradient_weight:    0.3   # How much gradient edges contribute to mask
-
-    # ── Morphology ────────────────────────────────────────────────────────
-    morph_kernel_size: 7      # Ellipse kernel for closing holes in blobs
-
-    # ── Camera geometry (MUST match your lens datasheet) ──────────────────
+    # ── Camera geometry — adjust to match your lens ───────────────────────────
     camera_hfov_deg: 84.0
     camera_vfov_deg: 54.0
