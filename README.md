@@ -1,106 +1,186 @@
-# MCLOUD Air Asset Software – Project Workspace
+# MCLOUD Air Asset – ws_air_asset
 
-Welcome to the MCLOUD Air Asset Software repository!
-This workspace serves as a shared foundation for all sub-projects developed under the MCLOUD team.
-It is designed to keep things organized, modular, and easy to extend as new functionality is added.
+Personal workspace for MCLOUD drone perception software. Built on ROS2 Humble, PX4, and Gazebo running on a Jetson Orin Nano Super (JetPack 6.1).
 
-# Repository Structure
+---
+
+## Workspace Structure
+
 ```
 ws_air_asset/
-├── src/                # Source packages for various project modules
-│   ├── <package_name>/ # Each folder here represents a distinct package or subproject
-│   │   ├── include/    # Header files (if applicable)
-│   │   ├── src/        # Source code files (.cpp, .py, etc.)
-│   │   ├── CMakeLists.txt
-│   │   └── package.xml
-│   └── ...
-├── models/             # Shared simulation or visualization models (for PX4, Gazebo, QGC, etc.)
-├── launch_project      # Helper script to configure and launch the workspace
-├── .gitignore
+├── src/
+│   ├── tarp_detection/       # Active — HSV + CCA object detection pipeline
+│   ├── px4_msgs/             # Auto-cloned by launch_project.sh
+│   └── px4_ros_com/          # Auto-cloned by launch_project.sh
+├── launch_project.sh         # Main launch script (see below)
+├── source.sh                 # Sources ROS2 + workspace (use before ros2 commands)
 └── README.md
 ```
-# Getting Started
-### 1. Clone the Repository
 
-```
-git clone git@github.com:M-Cloud-software/ws_air_asset.git
-cd ws_air_asset
-```
+---
 
-### 2. Launch the Workspace
+## Scripts
 
-The `launch_project` script is your main entry point for setting up and running the workspace environment.
-
-`./launch_project`
-
-The `launch_project` script initializes environment variables, sets up package paths, and ensures that dependencies are sourced properly.
-
-### 3. **Only if you make code changes when working on a package**
-
-Run `./launch_project build`
-
-# Developing Packages
-
-All development takes place inside the `src/` directory.
-
-Each subfolder in `src/` represents a package or module that can be independently built, tested, and maintained.
-
-Example layout
-```
-src/
-├── flight_control/
-│   ├── include/
-│   ├── src/
-│   ├── launch/
-│   ├── CMakeLists.txt
-│   └── package.xml
-├── perception/
-│   ├── src/
-│   ├── data/
-│   └── CMakeLists.txt
-└── comms/
-    ├── src/
-    └── CMakeLists.txt
+### `source.sh`
+Sources ROS2 Humble and the workspace install. Run this in any terminal before using `ros2` commands.
+```bash
+source source.sh
 ```
 
-## When creating a new package:
+### `launch_project.sh`
+Auto-clones `px4_msgs` and `px4_ros_com` if missing, then starts the full simulation stack in separate terminals:
+- **PX4 SITL** — `make px4_sitl gz_x500` in `~/PX4-Autopilot`
+- **MicroXRCEAgent** — bridges PX4 uXRCE-DDS to ROS2 over UDP port 8888
 
-1. Create a new folder under `src/`
+```bash
+./launch_project.sh           # start PX4 SITL + MicroXRCEAgent
+./launch_project.sh build     # colcon build the entire workspace
+```
 
-2. Open a new terminal
+Works on both native Linux and WSL (opens new tabs in Windows Terminal).
 
-3. Source the terminal (Connect to ROS2)
-	`source /opt/ros/humble/setup.bash`
+---
 
-4. Run the following command. 
-	
-	For Python:
-	
-	`ros2 pkg create <package_name> --build-type ament_python --dependencies rclpy`
-	
-	For C++:
-	
-	`ros2 pkg create <package_name> --build-type ament_cmake --dependencies rclcpp std_msgs`
+## Packages
 
-5. Ensure it integrates cleanly with the `launch_project` script if applicable
+### `tarp_detection` — Active development
 
-# Collaboration Guidelines
+Object detection pipeline for identifying tarps from a drone camera.
 
-Keep all temporary or generated files (like `build/`, `install/`, and `log/`) out of version control
-— these are already excluded via .gitignore.
+```
+tarp_detection/
+├── tarp_detection/
+│   ├── tarp_detection_node.py    # Detection node
+│   └── sitl_publisher.py         # Hardware-free test harness
+├── launch/
+│   ├── sitl.launch.py            # Runs both nodes for desktop testing
+│   └── detection.launch.py       # Production — detection node only
+├── config/
+│   └── detection_params.yaml     # All tunable parameters
+├── package.xml
+├── setup.py
+└── setup.cfg
+```
 
-Use feature branches for new functionality:
+**Detection pipeline** (per frame):
+1. Convert BGR → HSV
+2. Compute per-pixel HSV distance from target colour
+3. Threshold at `color_tolerance` → binary mask
+4. `connectedComponentsWithStats` → blobs
+5. Filter blobs by `[min_pixels, max_pixels]`
+6. Project surviving blob centroids to GPS using drone altitude + camera FOV
 
-`git checkout -b feature/<your-feature-name>`
+**Subscribed topics:**
 
-Keep commit messages descriptive and concise.
+| Topic | Type | Source |
+|---|---|---|
+| `/camera_feed` | `sensor_msgs/Image` | Camera node (not yet built) |
+| `/fmu/out/vehicle_global_position` | `px4_msgs/VehicleGlobalPosition` | PX4 via MicroXRCEAgent |
+| `/fmu/out/vehicle_local_position` | `px4_msgs/VehicleLocalPosition` | PX4 via MicroXRCEAgent |
 
-Push regularly to your team branch to avoid merge conflicts.
+**Published topics:**
 
-# Extra Notes
+| Topic | Type | Contents |
+|---|---|---|
+| `/detection_image` | `sensor_msgs/Image` | Annotated frame with bounding boxes |
+| `/objects_of_interest` | `std_msgs/String` | JSON — drone GPS + detection list |
 
-The `models/` folder can be sourced by external tools such as PX4, Gazebo, or QGroundControl.
+**JSON output shape:**
+```json
+{
+  "drone_lat": 37.7749,
+  "drone_lon": -122.4194,
+  "drone_alt": 30.0,
+  "detections": [
+    {
+      "label": "tarp",
+      "bbox": [x1, y1, x2, y2],
+      "pixel_center": [cx, cy],
+      "pixel_count": 1840,
+      "target_lat": 37.7748,
+      "target_lon": -122.4192
+    }
+  ]
+}
+```
 
-The repository is intended to serve as a central workspace, not a single monolithic project — each package should remain modular.
+**Key parameters** (`config/detection_params.yaml`):
 
-If you modify the `launch_project` script, please document your changes clearly in this README or a `CHANGELOG.md`.
+| Parameter | Default | Notes |
+|---|---|---|
+| `target_color_bgr` | `[0, 0, 200]` | Target colour in BGR |
+| `color_tolerance` | `35` | HSV distance threshold — raise to catch more, lower to reduce false positives |
+| `min_pixels` | `500` | Minimum blob size |
+| `max_pixels` | `200000` | Maximum blob size |
+| `camera_hfov_deg` | `84.0` | Horizontal FOV of camera |
+| `camera_vfov_deg` | `54.0` | Vertical FOV of camera |
+
+**`sitl_publisher.py`** — test harness that runs without any hardware:
+- Publishes a synthetic aerial frame with a coloured tarp blob embedded
+- Publishes fake `VehicleGlobalPosition` and `VehicleLocalPosition` at correct rates
+- Subscribes to `/objects_of_interest` and prints detections to terminal
+- Accepts a real image via `image_path` parameter
+
+---
+
+### `px4_msgs` / `px4_ros_com` — PX4 bridge (auto-managed)
+
+Cloned automatically by `launch_project.sh`. These provide the ROS2 message types and DDS bridge for communicating with PX4 SITL or hardware. Must be built before `tarp_detection` will run.
+
+---
+
+## Build & Run
+
+```bash
+# Build everything (required after first clone, or after code changes)
+./launch_project.sh build
+
+# Source the workspace in any new terminal
+source source.sh
+
+# Run detection pipeline against real hardware
+ros2 launch tarp_detection detection.launch.py
+
+# Run SITL test harness (no drone required)
+ros2 launch tarp_detection sitl.launch.py
+
+# View annotated output
+ros2 run rqt_image_view rqt_image_view /detection_image
+```
+
+---
+
+## Current Status
+
+| Component | Status |
+|---|---|
+| `tarp_detection_node` | Working — builds and runs |
+| `sitl_publisher` | Builds — SITL test currently blocked by `px4_msgs` build issue |
+| PX4 SITL + MicroXRCEAgent | Working via `launch_project.sh` |
+| Camera node | Not yet built |
+| Comms / modem node | Not yet built |
+
+### Known Issues
+
+**`px4_msgs` not found at runtime** — the SITL test harness fails with `ModuleNotFoundError: No module named 'px4_msgs'` even after sourcing the workspace. Root cause is that `px4_msgs` has not been successfully built yet. Fix:
+```bash
+cd ~/ws_air_asset
+source /opt/ros/humble/setup.bash
+colcon build --packages-select px4_msgs
+source install/setup.bash
+python3 -c "from px4_msgs.msg import VehicleGlobalPosition; print('ok')"
+```
+
+---
+
+## Pipeline Architecture (planned)
+
+```
+camera_node  ──→  /camera_feed  ──┐
+                                   ├──→  tarp_detection_node  ──→  /objects_of_interest  ──→  jetson_modem
+PX4 / MicroXRCEAgent  ────────────┘            │
+  /fmu/out/vehicle_global_position              └──→  /detection_image
+  /fmu/out/vehicle_local_position
+```
+
+Nodes not yet built: `camera_node`, `jetson_modem`.
