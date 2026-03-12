@@ -1,0 +1,17 @@
+jetson_modem:
+  ros__parameters:
+
+    # ── Ground station ────────────────────────────────────────────────────────
+    # Set this to your laptop's IP address before flying.
+    # Find it with: ip addr   (Linux) or  ipconfig  (Windows)
+    server_ip:   "192.168.1.100"
+    server_port: 8080
+
+    # ── Image quality ─────────────────────────────────────────────────────────
+    # JPEG compression 0-100. Lower = smaller file, faster send, lower quality.
+    # 80 is a good balance for LTE bandwidth.
+    jpeg_quality: 80
+
+    # ── Network timeout ───────────────────────────────────────────────────────
+    # How long to wait for the ground station to respond before giving up.
+    timeout_sec: 5.0

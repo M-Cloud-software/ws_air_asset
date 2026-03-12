@@ -31,4 +31,9 @@ def generate_launch_description():
                 'local_pos_topic':   LaunchConfiguration('local_pos_topic'),
             }],
         ),
+        Node(
+            package='v4l2_camera',
+            executable='argus_camera',
+            remappings=[('/image_raw', '/camera_feed')],
+        ),
     ])
