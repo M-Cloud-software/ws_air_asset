@@ -75,7 +75,7 @@ class TopicWatcher:
 
     def status(self) -> dict:
         """
-        Returns { ok: bool, hz: float }.
+        Returns { ok: bool, hz: float }. 
         ok is False if no messages have arrived in the last 2 seconds,
         or if the measured rate is below min_hz.
         """

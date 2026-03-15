@@ -4,7 +4,7 @@ jetson_modem:
     # ── Ground station ────────────────────────────────────────────────────────
     # Set this to your laptop's IP address before flying.
     # Find it with: ip addr   (Linux) or  ipconfig  (Windows)
-    server_ip:   "192.168.1.100"
+    server_ip:   "35.3.214.54"
     server_port: 8080
 
     # ── Image quality ─────────────────────────────────────────────────────────

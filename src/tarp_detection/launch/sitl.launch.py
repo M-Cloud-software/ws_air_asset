@@ -12,7 +12,7 @@ def generate_launch_description():
     monitor_cfg   = os.path.join(pkg, 'config', 'monitor_params.yaml')
 
     return LaunchDescription([
-        DeclareLaunchArgument('image_path',  default_value=''),
+        DeclareLaunchArgument('image_path',  default_value='/home/mcloud/ws_air_asset/test_input/test_simple.png'),
         DeclareLaunchArgument('start_lat',   default_value='37.7749'),
         DeclareLaunchArgument('start_lon',   default_value='-122.4194'),
         DeclareLaunchArgument('altitude_m',  default_value='30.0'),

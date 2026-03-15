@@ -10,7 +10,7 @@ tarp_detection:
     # Red:    [0, 0, 255]
     # Blue:   [255, 0, 0]
     # Orange: [0, 140, 255]
-    target_color_bgr: [0, 0, 200]
+    target_color_bgr: [151, 82, 2]
 
     # ── Colour matching ───────────────────────────────────────────────────────
     color_tolerance: 35     # HSV distance — raise if missing detections,
