@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 tarp_detection_node.py
-ROS2 Humble — Jetson Orin Nano Super (JetPack 6.1)
 
 Subscribes:
   /camera_feed                      (sensor_msgs/Image)

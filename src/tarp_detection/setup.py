@@ -13,7 +13,7 @@ setup(
         ('share/' + package_name + '/launch',
             ['launch/detection.launch.py', 'launch/sitl.launch.py']),
         ('share/' + package_name + '/config',
-            ['config/detection_params.yaml']),
+            ['config/detection_params.yaml', 'config/monitor_params.yaml']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -25,6 +25,7 @@ setup(
         'console_scripts': [
             'tarp_detection_node = tarp_detection.tarp_detection_node:main',
             'sitl_publisher = tarp_detection.sitl_publisher:main',
+            'pipeline_monitor = tarp_detection.pipeline_monitor_node:main',
         ],
     },
 )

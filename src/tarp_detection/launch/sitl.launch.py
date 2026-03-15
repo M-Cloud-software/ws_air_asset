@@ -7,10 +7,9 @@ from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
-    cfg = os.path.join(
-        get_package_share_directory('tarp_detection'),
-        'config', 'detection_params.yaml'
-    )
+    pkg = get_package_share_directory('tarp_detection')
+    detection_cfg = os.path.join(pkg, 'config', 'detection_params.yaml')
+    monitor_cfg   = os.path.join(pkg, 'config', 'monitor_params.yaml')
 
     return LaunchDescription([
         DeclareLaunchArgument('image_path',  default_value=''),
@@ -40,6 +39,14 @@ def generate_launch_description():
             executable='tarp_detection_node',
             name='tarp_detection',
             output='screen',
-            parameters=[cfg],
+            parameters=[detection_cfg],
+        ),
+
+        Node(
+            package='tarp_detection',
+            executable='pipeline_monitor',
+            name='pipeline_monitor',
+            output='screen',
+            parameters=[monitor_cfg],
         ),
     ])

@@ -1,0 +1,23 @@
+pipeline_monitor:
+  ros__parameters:
+
+    # ── Minimum acceptable Hz for each topic ─────────────────────────────────
+    # Set at 50% of expected operating rate as a conservative starting point.
+    # Validate and tighten these after first hardware flight by reviewing
+    # the /pipeline_status logs.
+    #
+    # Expected rates:
+    #   camera_feed:        10 Hz  (configurable in sitl/camera node)
+    #   global_position:    5 Hz   (PX4 default)
+    #   local_position:     50 Hz  (PX4 default)
+    #   detection outputs:  10 Hz  (matches camera)
+    camera_hz_min:      5.0
+    global_pos_hz_min:  2.0
+    local_pos_hz_min:   15.0
+    detection_hz_min:   5.0
+
+    # ── Detection node stall timeout ──────────────────────────────────────────
+    # How many seconds without a /objects_of_interest message before the
+    # detection node is considered stalled. Should be > 1/detection_hz_min
+    # to avoid false alarms from normal scheduling jitter.
+    stall_timeout_sec:  3.0

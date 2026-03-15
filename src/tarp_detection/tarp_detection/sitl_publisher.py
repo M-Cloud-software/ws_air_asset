@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 sitl_publisher.py  —  SITL test harness
-ROS2 Humble — no hardware required
 
 Publishes:
   /camera_feed                      (sensor_msgs/Image)          @ fps Hz

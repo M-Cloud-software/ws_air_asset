@@ -59,7 +59,7 @@ PX4 / MicroXRCEAgent  ────────────┘            │    
 
 ### `tarp_detection`
 
-Object detection pipeline. Subscribes to the camera feed and PX4 position topics, detects tarps using HSV colour thresholding and connected component analysis, and publishes annotated images and GPS coordinates.
+Object detection pipeline. Subscribes to the camera feed and PX4 position topics, detects tarps using HSV color thresholding and connected component analysis, and publishes annotated images and GPS coordinates.
 
 ```
 tarp_detection/
@@ -78,7 +78,7 @@ tarp_detection/
 
 **Detection pipeline** (per frame):
 1. Convert BGR → HSV
-2. Compute per-pixel HSV distance from target colour
+2. Compute per-pixel HSV distance from target color
 3. Threshold at `color_tolerance` → binary mask
 4. `connectedComponentsWithStats` → blobs
 5. Filter blobs by `[min_pixels, max_pixels]`
@@ -122,7 +122,7 @@ tarp_detection/
 
 | Parameter | Default | Notes |
 |---|---|---|
-| `target_color_bgr` | `[0, 0, 200]` | Target colour in BGR |
+| `target_color_bgr` | `[0, 0, 200]` | Target color in BGR |
 | `color_tolerance` | `35` | HSV distance threshold — raise to catch more, lower to reduce false positives |
 | `min_pixels` | `500` | Minimum blob size in pixels |
 | `max_pixels` | `200000` | Maximum blob size in pixels |
@@ -130,7 +130,7 @@ tarp_detection/
 | `camera_vfov_deg` | `54.0` | Vertical FOV of camera lens |
 
 **`sitl_publisher.py`** — desktop test harness, no hardware required:
-- Publishes a synthetic aerial frame with a coloured tarp blob embedded, or a real image via `image_path`
+- Publishes a synthetic aerial frame with a colored tarp blob embedded, or a real image via `image_path`
 - Publishes fake `VehicleGlobalPosition` and `VehicleLocalPosition` at correct PX4 rates
 - Subscribes to `/objects_of_interest` and prints detections to terminal
 

@@ -15,4 +15,3 @@ if [ -f "install/local_setup.bash" ]; then
     source install/local_setup.bash
 else
     echo "Workspace not yet built. Run 'colcon build' first."
-fi
