@@ -3,9 +3,17 @@ build/
 install/
 log/
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
 # Ignore the px4 packages --> installed via launch_project.sh
-src/px4_msgs
-src/px4_ros_com
+src/px4_msgs/
+src/px4_ros_com/
 
 # Ignore the vscode
 .vscode/
+
+# Docker
+.devcontainer/.env
