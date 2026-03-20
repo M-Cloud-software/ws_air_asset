@@ -8,6 +8,9 @@ Personal workspace for MCLOUD drone perception software. Built on ROS2 Humble, P
 
 ```
 ws_air_asset/
+├── .devcontainer/
+│   ├── devcontainer.json         # VS Code devcontainer config
+│   └── Dockerfile                # Container image definition
 ├── src/
 │   ├── tarp_detection/       # HSV + CCA object detection pipeline
 │   ├── jetson_modem/         # Cellular transmitter — sends detections to ground station
@@ -17,6 +20,65 @@ ws_air_asset/
 ├── source.sh                 # Sources ROS2 + workspace (use before ros2 commands)
 └── README.md
 ```
+
+---
+
+## Dev Container Setup
+
+The workspace includes a VS Code devcontainer that provides the full development environment — ROS2 Humble, Micro XRCE-DDS Agent, and all vision dependencies — without any manual installation.
+
+### Prerequisites
+
+- Docker installed and running (`docker ps` to verify)
+- VS Code with the **Dev Containers** extension installed
+
+### First-time setup
+
+1. Clone the repo and open the folder in VS Code:
+   ```bash
+   git clone git@github.com:M-Cloud-software/ws_air_asset.git
+   cd ws_air_asset
+   code .
+   ```
+
+2. When prompted, click **Reopen in Container** — or manually:
+   `Ctrl+Shift+P` → **Dev Containers: Rebuild and Reopen in Container**
+
+3. Wait for the image to build (first time only, takes several minutes). Once the terminal prompt appears, the environment is ready.
+
+4. Clone PX4 Autopilot inside the container (one-time, not committed to the repo):
+   ```bash
+   cd /workspaces
+   git clone https://github.com/PX4/PX4-Autopilot.git --recursive
+   ```
+
+### What the container includes
+
+| Component | Details |
+|---|---|
+| ROS2 Humble | Auto-sourced in every terminal |
+| Micro XRCE-DDS Agent | Pre-built, available as `MicroXRCEAgent` |
+| cv-bridge, image-transport, vision-msgs | ROS2 vision packages |
+| OpenCV | Available via `/opt/px4-venv` |
+| colcon, ros-dev-tools | Build tools |
+
+> ⚠️ **Jetson note:** Do not install PyTorch or torchvision via pip inside the container. Use NVIDIA's pre-built ARM64 wheels from the [Jetson PyTorch forum](https://forums.developer.nvidia.com/t/pytorch-for-jetson/72048) if GPU-accelerated inference is needed.
+
+### Returning to the container
+
+The container persists between sessions. To reopen it:
+
+`Ctrl+Shift+P` → **Dev Containers: Reopen in Container**
+
+To rebuild from scratch (e.g. after Dockerfile changes):
+
+`Ctrl+Shift+P` → **Dev Containers: Rebuild and Reopen in Container**
+
+### What goes to GitHub / what doesn't
+
+The **Dockerfile and devcontainer.json are committed** — anyone who clones the repo can rebuild the exact same environment. The built Docker image itself is not pushed anywhere; each machine builds it locally from the Dockerfile.
+
+`px4_msgs`, `px4_ros_com`, and `PX4-Autopilot` are **not committed** — they are either auto-cloned by `launch_project.sh` or cloned manually as described above.
 
 ---
 
@@ -229,4 +291,4 @@ python3 ground_station_server.py --port 8080 --save-dir ./detections
 | `jetson_modem_node` | Built — untested (pending hardware) |
 | `ground_station_server.py` | Built — untested (pending hardware) |
 | PX4 SITL + MicroXRCEAgent | Working via `launch_project.sh` |
-| Camera node (IMX477) |  Built — untested (pending hardware) |
+| Camera node (IMX477) | Built — untested (pending hardware) |
