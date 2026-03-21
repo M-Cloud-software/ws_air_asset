@@ -40,34 +40,45 @@ launch_terminal() {
 }
 
 # -------- 0. Build Step --------
-if [[ "$1" == "build" ]]; then
     echo "Building workspace..."
 
     source /opt/ros/humble/setup.bash
     cd "$WORKSPACE"
     colcon build
+    
+    echo "Workspace installed and built! Exiting..."
     exit 0
-fi
+# if [[ "$1" == "build" ]]; then
+#     echo "Building workspace..."
 
-echo "Starting system..."
+#     source /opt/ros/humble/setup.bash
+#     cd "$WORKSPACE"
+#     colcon build
+    
+#     echo "Workspace installed and built! Exiting..."
+#     exit 0
+# fi
 
-# -------- 1. Environment --------
-cd "$WORKSPACE"
-source /opt/ros/humble/setup.bash
-source install/local_setup.bash
 
-export GZ_SIM_RESOURCE_PATH="$MODEL_PATH"
-export PX4_SIM_MODEL_PATH="$MODEL_PATH"
+if [[ "$1" == "run" ]]; then
+    echo "Starting system..."
 
-sleep 1
+    # -------- 1. Environment --------
+    cd "$WORKSPACE"
+    source /opt/ros/humble/setup.bash
+    source install/local_setup.bash
 
-# -------- 2. Launch PX4 SITL --------
-# ONE LINE — NO NEWLINES — NO LEADING SPACES INSIDE CMD
-launch_terminal "PX4 SITL" \
-"cd ~/PX4-Autopilot && source /opt/ros/humble/setup.bash && export GZ_SIM_RESOURCE_PATH=$MODEL_PATH && make px4_sitl gz_x500"
+    export GZ_SIM_RESOURCE_PATH="$MODEL_PATH"
+    export PX4_SIM_MODEL_PATH="$MODEL_PATH"
 
-sleep 3
+    sleep 1
 
-# -------- 3. Launch MicroXRCEAgent --------
-launch_terminal "MicroXRCEAgent" \
-"source /opt/ros/humble/setup.bash && MicroXRCEAgent udp4 -p 8888"
+    # -------- 2. Launch PX4 SITL --------
+    launch_terminal "PX4 SITL" \
+    "cd ~/PX4-Autopilot && source /opt/ros/humble/setup.bash && export GZ_SIM_RESOURCE_PATH=$MODEL_PATH && make px4_sitl gz_x500"
+
+    sleep 3
+
+    # -------- 3. Launch MicroXRCEAgent --------
+    launch_terminal "MicroXRCEAgent" \
+    "source /opt/ros/humble/setup.bash && MicroXRCEAgent udp4 -p 8888"
