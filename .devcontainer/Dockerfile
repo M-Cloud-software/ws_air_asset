@@ -94,8 +94,7 @@ RUN apt-get update && apt-get install -y \
 # Python extras in venv
 RUN python3 -m venv /opt/px4-venv && \
     /opt/px4-venv/bin/pip install --upgrade pip setuptools wheel && \
-    /opt/px4-venv/bin/pip install empy==3.3.4 pyros-genmsg
-    /opt/px4-venv/bin/pip install opencv-python-headless
+    /opt/px4-venv/bin/pip install empy==3.3.4 pyros-genmsg opencv-python-headless
 
 # Micro XRCE-DDS Agent
 WORKDIR /opt
