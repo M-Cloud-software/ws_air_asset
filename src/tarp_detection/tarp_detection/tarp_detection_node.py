@@ -68,6 +68,7 @@ class TarpDetectionNode(Node):
         self.declare_parameter('max_pixels',         200000)
         self.declare_parameter('camera_hfov_deg',    84.0)
         self.declare_parameter('camera_vfov_deg',    54.0)
+        self.declare_parameter('min_publish_interval', 0.5)
 
         image_topic  = self.get_parameter('image_topic').value
         global_topic = self.get_parameter('global_pos_topic').value
@@ -78,6 +79,9 @@ class TarpDetectionNode(Node):
         self.max_pixels  = self.get_parameter('max_pixels').value
         self.hfov = math.radians(self.get_parameter('camera_hfov_deg').value)
         self.vfov = math.radians(self.get_parameter('camera_vfov_deg').value)
+        self.min_publish_interval = self.get_parameter('min_publish_interval').value
+
+        self.last_publish_time = 0.0
 
         # Convert target colour to HSV once at startup
         bgr_pixel       = np.uint8([[color_bgr]])
@@ -204,9 +208,11 @@ class TarpDetectionNode(Node):
 
         # ── Publish annotated image ────────────────────────────────────────────
         try:
-            out = self.bridge.cv2_to_imgmsg(annotated, encoding='bgr8')
-            out.header = msg.header
-            self.img_pub.publish(out)
+            if time.time() - self.last_publish_time > self.min_publish_interval:
+                out = self.bridge.cv2_to_imgmsg(annotated, encoding='bgr8')
+                out.header = msg.header
+                self.img_pub.publish(out)
+                self.last_publish_time = time.time()
         except Exception as e:
             self.get_logger().error(f'image publish error: {e}')
 

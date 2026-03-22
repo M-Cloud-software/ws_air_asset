@@ -21,3 +21,6 @@ tarp_detection:
     # ── Camera geometry — adjust to match your lens ───────────────────────────
     camera_hfov_deg: 84.0
     camera_vfov_deg: 54.0
+
+    # ── Object Detection Tuning Parameters ────────────────────────────────────
+    min_publish_interval: 5.0 # This must be a double (float)

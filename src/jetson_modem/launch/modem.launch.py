@@ -21,13 +21,13 @@ def generate_launch_description():
             default_value='192.168.1.100',
             description='Ground station laptop IP address'),
 
-        Node(
-            package='tarp_detection',
-            executable='tarp_detection_node',
-            name='tarp_detection',
-            output='screen',
-            parameters=[detection_cfg],
-        ),
+        # Node(
+        #     package='tarp_detection',
+        #     executable='tarp_detection_node',
+        #     name='tarp_detection',
+        #     output='screen',
+        #     parameters=[detection_cfg],
+        # ),
 
         Node(
             package='jetson_modem',
