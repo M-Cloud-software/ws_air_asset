@@ -6,7 +6,12 @@
 
 set -Eeo pipefail
 
-WORKSPACE=~/ws_air_asset
+
+if [ -d "/workspaces/ws_air_asset" ]; then
+    WORKSPACE=/workspaces/ws_air_asset
+else
+    WORKSPACE=~/ws_air_asset
+fi
 MODEL_PATH=$WORKSPACE/models
 
 # -------- Detect px4_msgs and px4_ros_com --------

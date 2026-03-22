@@ -4,7 +4,11 @@
 # Works on: WSL + Linux (VM/native)
 # ======================================
 
-WORKSPACE=~/ws_air_asset
+if [ -d "/workspaces/ws_air_asset" ]; then
+    WORKSPACE=/workspaces/ws_air_asset
+else
+    WORKSPACE=~/ws_air_asset
+fi
 
 cd "$WORKSPACE"
 source /opt/ros/humble/setup.bash
@@ -15,3 +19,4 @@ if [ -f "install/local_setup.bash" ]; then
     source install/local_setup.bash
 else
     echo "Workspace not yet built. Run 'colcon build' first."
+fi

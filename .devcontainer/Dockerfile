@@ -94,7 +94,7 @@ RUN apt-get update && apt-get install -y \
 # Python extras in venv
 RUN python3 -m venv /opt/px4-venv && \
     /opt/px4-venv/bin/pip install --upgrade pip setuptools wheel && \
-    /opt/px4-venv/bin/pip install empy==3.3.4 pyros-genmsg opencv-python-headless
+    /opt/px4-venv/bin/pip install empy==3.3.4 pyros-genmsg lark catkin_pkg opencv-python-headless
 
 # Micro XRCE-DDS Agent
 WORKDIR /opt
@@ -110,7 +110,8 @@ RUN git clone -b v2.4.3 https://github.com/eProsima/Micro-XRCE-DDS-Agent.git && 
 WORKDIR /opt/qgroundcontrol
 
 RUN echo 'source /opt/ros/humble/setup.bash' >> /etc/bash.bashrc && \
-    echo 'source /opt/px4-venv/bin/activate' >> /etc/bash.bashrc && \
+    # echo 'source /opt/px4-venv/bin/activate' >> /etc/bash.bashrc && \
+    echo 'alias px4env="source /opt/px4-venv/bin/activate"' >> /etc/bash.bashrc && \ 
     echo 'alias qgc="QT_QPA_PLATFORM=xcb /opt/qgroundcontrol/qgc/AppRun"' >> /etc/bash.bashrc && \
     echo 'alias gzsim="gz sim"' >> /etc/bash.bashrc
 
