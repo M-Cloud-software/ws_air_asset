@@ -24,3 +24,5 @@ tarp_detection:
 
     # ── Object Detection Tuning Parameters ────────────────────────────────────
     min_publish_interval: 5.0 # This must be a double (float)
+                              # num seconds between publishings
+                              # (to reduce data usage from modem)

@@ -9,7 +9,6 @@ Subscribes:
   /camera_feed                      (sensor_msgs/Image)
   /fmu/out/vehicle_global_position  (px4_msgs/VehicleGlobalPosition)
   /fmu/out/vehicle_local_position   (px4_msgs/VehicleLocalPosition)
-  /detection_image                  (sensor_msgs/Image)
   /objects_of_interest              (std_msgs/String)
 
 Publishes:
@@ -25,7 +24,6 @@ JSON output:
       "camera_feed":         { "ok": true,  "hz": 10.2 },
       "global_position":     { "ok": true,  "hz": 4.8  },
       "local_position":      { "ok": true,  "hz": 49.1 },
-      "detection_image":     { "ok": true,  "hz": 10.1 },
       "objects_of_interest": { "ok": true,  "hz": 10.1 }
     }
   }
@@ -33,6 +31,11 @@ JSON output:
 Fault conditions (sets healthy=false and populates fault string):
   - Any topic's measured Hz drops below its configured minimum (config/monitor_params.yaml)
   - frames_processed stops incrementing for longer than stall_timeout_sec
+
+detection_image is not monitored. tarp_detection_node throttles that topic
+via min_publish_interval to limit data usage over cellular — its publish rate
+is unrelated to pipeline health. Pipeline health is fully covered by
+objects_of_interest, which is published every processed frame at camera rate.
 
 frames_since_last_detection is informational only. It does NOT affect
 the healthy flag, because no detections may simply mean no tarp is present.
@@ -69,22 +72,20 @@ class TopicWatcher:
         now = time.monotonic()
         with self._lock:
             self._times.append(now)
-            # Keep only the last 2 seconds
             cutoff = now - 2.0
             self._times = [t for t in self._times if t >= cutoff]
 
     def status(self) -> dict:
         """
-        Returns { ok: bool, hz: float }. 
-        ok is False if no messages have arrived in the last 2 seconds,
-        or if the measured rate is below min_hz.
+        Returns { ok: bool, hz: float }.
+        ok is False if the measured rate is below min_hz.
         """
         now = time.monotonic()
         with self._lock:
             cutoff = now - 2.0
             recent = [t for t in self._times if t >= cutoff]
 
-        hz = len(recent) / 2.0   # messages in last 2s / window size
+        hz = len(recent) / 2.0
         ok = hz >= self.min_hz
         return {'ok': ok, 'hz': round(hz, 1)}
 
@@ -111,8 +112,6 @@ class PipelineMonitorNode(Node):
                                        self.get_parameter('global_pos_hz_min').value),
             'local_position':      TopicWatcher('local_position',
                                        self.get_parameter('local_pos_hz_min').value),
-            'detection_image':     TopicWatcher('detection_image',
-                                       self.get_parameter('detection_hz_min').value),
             'objects_of_interest': TopicWatcher('objects_of_interest',
                                        self.get_parameter('detection_hz_min').value),
         }
@@ -121,7 +120,7 @@ class PipelineMonitorNode(Node):
         self._lock                       = threading.Lock()
         self._frames_processed           = 0
         self._frames_since_last_det      = 0
-        self._last_frame_time            = None   # monotonic time of last /objects_of_interest msg
+        self._last_frame_time            = None
 
         # ── QoS ───────────────────────────────────────────────────────────────
         qos_best_effort = QoSProfile(
@@ -144,11 +143,6 @@ class PipelineMonitorNode(Node):
         self.create_subscription(
             VehicleLocalPosition, '/fmu/out/vehicle_local_position',
             lambda msg: self._watchers['local_position'].tick(),
-            qos_best_effort)
-
-        self.create_subscription(
-            Image, '/detection_image',
-            lambda msg: self._watchers['detection_image'].tick(),
             qos_best_effort)
 
         self.create_subscription(
@@ -193,10 +187,8 @@ class PipelineMonitorNode(Node):
     def _publish_status(self):
         now = time.monotonic()
 
-        # ── Collect topic statuses ─────────────────────────────────────────
         topic_statuses = {k: w.status() for k, w in self._watchers.items()}
 
-        # ── Check for stalled detection node ──────────────────────────────
         with self._lock:
             frames_processed      = self._frames_processed
             frames_since_last_det = self._frames_since_last_det
@@ -207,7 +199,6 @@ class PipelineMonitorNode(Node):
             (now - last_frame_time) > self._stall_timeout
         )
 
-        # ── Determine overall health and fault reason ──────────────────────
         faults = []
 
         for name, status in topic_statuses.items():
@@ -227,18 +218,16 @@ class PipelineMonitorNode(Node):
         healthy = len(faults) == 0
         fault   = '; '.join(faults) if faults else None
 
-        # ── Build and publish payload ──────────────────────────────────────
         payload = {
-            'healthy':                    healthy,
-            'fault':                      fault,
-            'frames_processed':           frames_processed,
+            'healthy':                     healthy,
+            'fault':                       fault,
+            'frames_processed':            frames_processed,
             'frames_since_last_detection': frames_since_last_det,
-            'topics':                     topic_statuses,
+            'topics':                      topic_statuses,
         }
 
         self._status_pub.publish(String(data=json.dumps(payload)))
 
-        # Log a warning locally if unhealthy
         if not healthy:
             self.get_logger().warn(f'PIPELINE FAULT: {fault}')
 
