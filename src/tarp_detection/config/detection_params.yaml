@@ -12,17 +12,18 @@ tarp_detection:
     # Orange: [0, 140, 255]
     target_color_bgr: [151, 82, 2]
 
-    # ── Colour matching ───────────────────────────────────────────────────────
+    # ── Color matching ───────────────────────────────────────────────────────
     color_tolerance: 35     # HSV distance — raise if missing detections,
                             # lower if too many false positives
-    min_pixels: 500         # ignore blobs smaller than this
+    min_pixels: 5000        # ignore blobs smaller than this
     max_pixels: 200000      # ignore blobs larger than this
 
     # ── Camera geometry — adjust to match your lens ───────────────────────────
-    camera_hfov_deg: 84.0
-    camera_vfov_deg: 54.0
+    camera_hfov_deg: 65.0
+    camera_vfov_deg: 51.0
 
     # ── Object Detection Tuning Parameters ────────────────────────────────────
     min_publish_interval: 5.0 # This must be a double (float)
                               # num seconds between publishings
                               # (to reduce data usage from modem)
+

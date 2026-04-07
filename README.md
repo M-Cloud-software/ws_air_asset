@@ -96,8 +96,7 @@ Auto-clones `px4_msgs` and `px4_ros_com` if missing, then starts the full simula
 - **MicroXRCEAgent** — bridges PX4 uXRCE-DDS to ROS2 over UDP port 8888
 
 ```bash
-./launch_project.sh           # start PX4 SITL + MicroXRCEAgent
-./launch_project.sh build     # colcon build the entire workspace
+./launch_project.sh           # download/install px4 packages and build the environment
 ```
 
 Works on both native Linux and WSL (opens new tabs in Windows Terminal).
@@ -249,7 +248,7 @@ Cloned automatically by `launch_project.sh`. Provides ROS2 message types and the
 
 ```bash
 # Build everything (required after first clone, or after any code changes)
-./launch_project.sh build
+./launch_project.sh
 
 # Source the workspace in any new terminal before running ros2 commands
 source source.sh
